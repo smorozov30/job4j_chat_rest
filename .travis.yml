@@ -1,0 +1,33 @@
+# используем язык java. Travis CI поддерживает другие языки тоже.
+language: java
+jdk:
+  - openjdk13
+
+# создание БД для тестов
+services:
+  - postgresql
+before_install:
+  - psql -c "CREATE DATABASE chat;" -U postgres
+
+# используем режим обычного пользователя для сборки проекта.
+sudo: false
+
+install: true
+
+script: mvn clean package -DskipTests=true
+
+# после выполнения сборки запустить скрипт, который будет собирать статистику по JaCoCo
+# Здесь используется сторонни сервис https://codecov.io/
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+# Отправлять уведомление на moroz.future@gmail.com если сборка упала
+notifications:
+  email:
+    recipients:
+      - moroz.future@gmail.com
+    on_success: never # default: change
+    on_failure: always # default: always
+env:
+  global:
+    - CODECOV_TOKEN="9645f97e-023f-4473-ba61-bfb434593381"
