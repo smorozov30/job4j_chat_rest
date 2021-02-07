@@ -5,8 +5,8 @@ CREATE TABLE role (
 
 CREATE TABLE person (
     id SERIAL PRIMARY KEY NOT NULL,
-    name VARCHAR(2000),
-    lastname VARCHAR(2000),
+    login VARCHAR(2000),
+    password VARCHAR(2000),
     role_id INT NOT NULL DEFAULT 1,
     FOREIGN KEY (role_id) REFERENCES role (id)
 );

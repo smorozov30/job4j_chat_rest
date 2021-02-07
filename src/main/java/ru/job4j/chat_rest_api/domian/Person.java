@@ -10,8 +10,8 @@ public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String name;
-    private String lastname;
+    private String login;
+    private String password;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
@@ -19,8 +19,8 @@ public class Person {
 
     public static Person of(String name, String lastname) {
         Person person = new Person();
-        person.name = name;
-        person.lastname = lastname;
+        person.login = name;
+        person.password = lastname;
         return person;
     }
 
@@ -32,20 +32,20 @@ public class Person {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getLogin() {
+        return login;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLogin(String name) {
+        this.login = name;
     }
 
-    public String getLastname() {
-        return lastname;
+    public String getPassword() {
+        return password;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setPassword(String lastname) {
+        this.password = lastname;
     }
 
     public Role getRole() {

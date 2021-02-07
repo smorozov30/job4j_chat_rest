@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.job4j.chat_rest_api.ChatRestApiApplication;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = ChatRestApiApplication.class)
 @AutoConfigureMockMvc
+@ActiveProfiles(value = {"no_auth"})
 class MessageControllerTest {
 
     @MockBean
@@ -48,7 +50,7 @@ class MessageControllerTest {
         Message message = Message.of("message");
         message.setCreated(null);
         Room room = Room.of("room");
-        Person author = Person.of("name", "lastname");
+        Person author = Person.of("login", "password");
         Role role = Role.of("ROLE_ADMIN");
         author.setRole(role);
         message.setRoom(room);
@@ -70,8 +72,8 @@ class MessageControllerTest {
                                       "}," +
                             "\"author\":{" +
                                         "\"id\":0," +
-                                        "\"name\":\"name\"," +
-                                        "\"lastname\":\"lastname\"," +
+                                        "\"login\":\"login\"," +
+                                        "\"password\":\"password\"," +
                                         "\"role\":{" +
                                                   "\"id\":0," +
                                                   "\"name\":\"ROLE_ADMIN\"" +
@@ -86,7 +88,7 @@ class MessageControllerTest {
         Message message = Message.of("message");
         message.setCreated(null);
         Room room = Room.of("room");
-        Person author = Person.of("name", "lastname");
+        Person author = Person.of("login", "password");
         Role role = Role.of("ROLE_ADMIN");
         author.setRole(role);
         message.setRoom(room);
@@ -108,8 +110,8 @@ class MessageControllerTest {
                                     "}," +
                             "\"author\":{" +
                                         "\"id\":0," +
-                                        "\"name\":\"name\"," +
-                                        "\"lastname\":\"lastname\"," +
+                                        "\"login\":\"login\"," +
+                                        "\"password\":\"password\"," +
                                         "\"role\":{" +
                                                 "\"id\":0," +
                                                 "\"name\":\"ROLE_ADMIN\"" +
@@ -125,7 +127,7 @@ class MessageControllerTest {
         message.setCreated(null);
         Room room = Room.of("room");
         room.setId(1);
-        Person author = Person.of("name", "lastname");
+        Person author = Person.of("login", "password");
         author.setId(1);
         Role role = Role.of("ROLE_ADMIN");
         author.setRole(role);
@@ -153,8 +155,8 @@ class MessageControllerTest {
                                     "}," +
                                 "\"author\":{" +
                                         "\"id\":1," +
-                                        "\"name\":\"name\"," +
-                                        "\"lastname\":\"lastname\"," +
+                                        "\"login\":\"login\"," +
+                                        "\"password\":\"password\"," +
                                         "\"role\":{" +
                                                     "\"id\":0," +
                                                     "\"name\":\"ROLE_ADMIN\"" +

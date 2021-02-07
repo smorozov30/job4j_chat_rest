@@ -1,8 +1,8 @@
 INSERT INTO role (name) VALUES ('USER');
 INSERT INTO role (name) VALUES ('ADMIN');
 
-INSERT INTO person (name, lastname, role_id) VALUES ('Sergey', 'Morozov', 1);
-INSERT INTO person (name, lastname, role_id) VALUES ('Ivan', 'Ivanov', 2);
+INSERT INTO person (login, password, role_id) VALUES ('root@root', '$2a$10$TX7b0baht8v8AjfXQVrES./0f2HDgB0RfCUQyMr8fIpuRU7rYJlrS', 1);
+INSERT INTO person (login, password, role_id) VALUES ('user@user', '$2a$10$TX7b0baht8v8AjfXQVrES./0f2HDgB0RfCUQyMr8fIpuRU7rYJlrS', 2);
 
 INSERT INTO room (name) VALUES ('Junior Room');
 INSERT INTO room (name) VALUES ('Middle Room');

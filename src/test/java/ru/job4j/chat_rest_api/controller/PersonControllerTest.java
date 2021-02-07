@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.job4j.chat_rest_api.ChatRestApiApplication;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = ChatRestApiApplication.class)
 @AutoConfigureMockMvc
+@ActiveProfiles(value = {"no_auth"})
 class PersonControllerTest {
 
     @MockBean
@@ -36,7 +38,7 @@ class PersonControllerTest {
 
     @Test
     void whenFindAllThenReturnListOfPersonInJSON() throws Exception {
-        Person person = Person.of("name", "lastname");
+        Person person = Person.of("login", "password");
         Role role = Role.of("ROLE_ADMIN");
         person.setRole(role);
         when(personRepository.findAll()).thenReturn(List.of(person));
@@ -47,8 +49,8 @@ class PersonControllerTest {
                 .andReturn();
 
         String expected = "[{\"id\":0," +
-                            "\"name\":\"name\"," +
-                            "\"lastname\":\"lastname\"," +
+                            "\"login\":\"login\"," +
+                            "\"password\":\"password\"," +
                             "\"role\":{" +
                                     "\"id\":0," +
                                     "\"name\":\"ROLE_ADMIN\"" +
@@ -59,7 +61,7 @@ class PersonControllerTest {
 
     @Test
     void whenFindByIdZeroThenReturnRoleInJSONAndStatusOK() throws Exception {
-        Person person = Person.of("name", "lastname");
+        Person person = Person.of("login", "password");
         Role role = Role.of("ROLE_ADMIN");
         person.setRole(role);
         when(personRepository.findById(0)).thenReturn(Optional.of(person));
@@ -70,8 +72,8 @@ class PersonControllerTest {
                 .andReturn();
 
         String expected = "{\"id\":0," +
-                            "\"name\":\"name\"," +
-                            "\"lastname\":\"lastname\"," +
+                            "\"login\":\"login\"," +
+                            "\"password\":\"password\"," +
                             "\"role\":{" +
                                     "\"id\":0," +
                                     "\"name\":\"ROLE_ADMIN\"" +
@@ -82,12 +84,12 @@ class PersonControllerTest {
 
     @Test
     void whenCreateNewPersonThenReturnSavedPersonAndStatusCreated() throws Exception {
-        Person person = Person.of("name", "lastname");
+        Person person = Person.of("login", "password");
         Role role = Role.of("ROLE_ADMIN");
         person.setRole(role);
         when(personRepository.save(any())).thenReturn(person);
 
-        String data = "{\"name\":\"name\",\"lastname\":\"lastname\"}";
+        String data = "{\"login\":\"login\",\"password\":\"password\"}";
         MvcResult mvcResult = this.mockMvc.perform(post("/person/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(data))
@@ -96,8 +98,8 @@ class PersonControllerTest {
                 .andReturn();
 
         String expected = "{\"id\":0," +
-                            "\"name\":\"name\"," +
-                            "\"lastname\":\"lastname\"," +
+                            "\"login\":\"login\"," +
+                            "\"password\":\"password\"," +
                             "\"role\":{" +
                                     "\"id\":0," +
                                     "\"name\":\"ROLE_ADMIN\"" +
@@ -108,7 +110,7 @@ class PersonControllerTest {
 
     @Test
     void whenUpdatePersonThenReturnStatusOk() throws Exception {
-        String data = "{\"name\":\"name\",\"lastname\":\"lastname\"}";
+        String data = "{\"login\":\"login\",\"password\":\"password\"}";
         this.mockMvc.perform(put("/person/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(data))
