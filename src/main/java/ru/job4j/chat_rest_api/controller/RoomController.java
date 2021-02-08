@@ -4,49 +4,46 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.chat_rest_api.domian.Room;
-import ru.job4j.chat_rest_api.repository.RoomRepository;
+import ru.job4j.chat_rest_api.service.room.RoomService;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/room")
 public class RoomController {
 
-    private final RoomRepository repository;
+    private final RoomService service;
 
-    public RoomController(RoomRepository repository) {
-        this.repository = repository;
+    public RoomController(RoomService service) {
+        this.service = service;
     }
 
     @GetMapping("/")
     public List<Room> findAll() {
-        return StreamSupport.stream(
-                repository.findAll().spliterator(), false
-        ).collect(Collectors.toList());
+        return new ArrayList<>(service.findAllRooms());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Room> findById(@PathVariable int id) {
-        var person = this.repository.findById(id);
+        var room = this.service.findRoomById(id);
         return new ResponseEntity<Room>(
-                person.orElse(new Room()),
-                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
+                room,
+                room.getId() != 0 ? HttpStatus.OK : HttpStatus.NOT_FOUND
         );
     }
 
     @PostMapping("/")
     public ResponseEntity<Room> create(@RequestBody Room room) {
         return new ResponseEntity<Room>(
-                repository.save(room),
+                service.saveRoom(room),
                 HttpStatus.CREATED
         );
     }
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Room room) {
-        repository.save(room);
+        service.saveRoom(room);
         return ResponseEntity.ok().build();
     }
 
@@ -54,7 +51,7 @@ public class RoomController {
     public ResponseEntity<Void> delete(@PathVariable int id) {
         Room room = new Room();
         room.setId(id);
-        repository.delete(room);
+        service.deleteRoom(room);
         return ResponseEntity.ok().build();
     }
 }

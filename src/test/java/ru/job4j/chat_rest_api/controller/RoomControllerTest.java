@@ -10,10 +10,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.job4j.chat_rest_api.ChatRestApiApplication;
-import ru.job4j.chat_rest_api.domian.Role;
 
 import ru.job4j.chat_rest_api.domian.Room;
-import ru.job4j.chat_rest_api.repository.RoomRepository;
+import ru.job4j.chat_rest_api.service.room.RoomService;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,14 +32,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class RoomControllerTest {
 
     @MockBean
-    private RoomRepository roomRepository;
+    private RoomService service;
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     void whenFindAllThenReturnListOfRoomInJSON() throws Exception {
-        when(roomRepository.findAll()).thenReturn(List.of(Room.of("new room")));
+        when(service.findAllRooms()).thenReturn(List.of(Room.of("new room")));
 
         MvcResult mvcResult = this.mockMvc.perform(get("/room/"))
                 .andDo(print())
@@ -53,21 +52,23 @@ class RoomControllerTest {
 
     @Test
     void whenFindByIdZeroThenReturnRoomInJSONAndStatusOK() throws Exception {
-        when(roomRepository.findById(0)).thenReturn(Optional.of(Room.of("new room")));
+        Room room = Room.of("new room");
+        room.setId(1);
+        when(service.findRoomById(1)).thenReturn(room);
 
-        MvcResult mvcResult = this.mockMvc.perform(get("/room/0"))
+        MvcResult mvcResult = this.mockMvc.perform(get("/room/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String expected = "{\"id\":0,\"name\":\"new room\"}";
+        String expected = "{\"id\":1,\"name\":\"new room\"}";
         assertThat(mvcResult.getResponse().getContentAsString(), is(expected));
     }
 
     @Test
     void whenCreateNewRoomThenReturnSavedRoomAndStatusCreated() throws Exception {
         Room room = Room.of("new room");
-        when(roomRepository.save(any())).thenReturn(room);
+        when(service.saveRoom(any())).thenReturn(room);
 
         String data = "{\"name\":\"new room\"}";
         MvcResult mvcResult = this.mockMvc.perform(post("/room/")

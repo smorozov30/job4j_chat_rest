@@ -4,49 +4,46 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.chat_rest_api.domian.Role;
-import ru.job4j.chat_rest_api.repository.RoleRepository;
+import ru.job4j.chat_rest_api.service.role.RoleService;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/role")
 public class RoleController {
 
-    private final RoleRepository repository;
+    private final RoleService service;
 
-    public RoleController(RoleRepository repository) {
-        this.repository = repository;
+    public RoleController(RoleService service) {
+        this.service = service;
     }
 
     @GetMapping("/")
     public List<Role> findAll() {
-        return StreamSupport.stream(
-                repository.findAll().spliterator(), false
-        ).collect(Collectors.toList());
+        return new ArrayList<>(service.findAllRoles());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Role> findById(@PathVariable int id) {
-        var person = this.repository.findById(id);
+        var person = this.service.findRoleById(id);
         return new ResponseEntity<Role>(
-                person.orElse(new Role()),
-                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
+                person,
+                person.getId() != 0 ? HttpStatus.OK : HttpStatus.NOT_FOUND
         );
     }
 
     @PostMapping("/")
     public ResponseEntity<Role> create(@RequestBody Role role) {
         return new ResponseEntity<Role>(
-                repository.save(role),
+                service.saveRole(role),
                 HttpStatus.CREATED
         );
     }
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Role role) {
-        repository.save(role);
+        service.saveRole(role);
         return ResponseEntity.ok().build();
     }
 
@@ -54,7 +51,7 @@ public class RoleController {
     public ResponseEntity<Void> delete(@PathVariable int id) {
         Role role = new Role();
         role.setId(id);
-        repository.delete(role);
+        service.deleteRole(role);
         return ResponseEntity.ok().build();
     }
 }

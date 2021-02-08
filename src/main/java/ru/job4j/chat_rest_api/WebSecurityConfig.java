@@ -23,8 +23,8 @@ import static ru.job4j.chat_rest_api.filter.JWTAuthenticationFilter.SIGN_UP_URL;
 @EnableWebSecurity
 @Profile(value = {"jwt"})
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private UserDetailsServiceImpl userDetailsService;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userDetailsService = userDetailsService;

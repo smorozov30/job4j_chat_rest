@@ -12,11 +12,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import ru.job4j.chat_rest_api.ChatRestApiApplication;
 import ru.job4j.chat_rest_api.domian.Person;
 import ru.job4j.chat_rest_api.domian.Role;
-import ru.job4j.chat_rest_api.repository.PersonRepository;
+import ru.job4j.chat_rest_api.service.person.PersonService;
 
 import java.util.List;
-import java.util.Optional;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PersonControllerTest {
 
     @MockBean
-    private PersonRepository personRepository;
+    private PersonService service;
 
     @Autowired
     private MockMvc mockMvc;
@@ -41,7 +39,7 @@ class PersonControllerTest {
         Person person = Person.of("login", "password");
         Role role = Role.of("ROLE_ADMIN");
         person.setRole(role);
-        when(personRepository.findAll()).thenReturn(List.of(person));
+        when(service.findAllPersons()).thenReturn(List.of(person));
 
         MvcResult mvcResult = this.mockMvc.perform(get("/person/"))
                 .andDo(print())
@@ -63,15 +61,16 @@ class PersonControllerTest {
     void whenFindByIdZeroThenReturnRoleInJSONAndStatusOK() throws Exception {
         Person person = Person.of("login", "password");
         Role role = Role.of("ROLE_ADMIN");
+        person.setId(1);
         person.setRole(role);
-        when(personRepository.findById(0)).thenReturn(Optional.of(person));
+        when(service.findPersonById(1)).thenReturn(person);
 
-        MvcResult mvcResult = this.mockMvc.perform(get("/person/0"))
+        MvcResult mvcResult = this.mockMvc.perform(get("/person/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String expected = "{\"id\":0," +
+        String expected = "{\"id\":1," +
                             "\"login\":\"login\"," +
                             "\"password\":\"password\"," +
                             "\"role\":{" +
@@ -87,7 +86,7 @@ class PersonControllerTest {
         Person person = Person.of("login", "password");
         Role role = Role.of("ROLE_ADMIN");
         person.setRole(role);
-        when(personRepository.save(any())).thenReturn(person);
+        when(service.savePerson(any())).thenReturn(person);
 
         String data = "{\"login\":\"login\",\"password\":\"password\"}";
         MvcResult mvcResult = this.mockMvc.perform(post("/person/")

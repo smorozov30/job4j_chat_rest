@@ -14,12 +14,9 @@ import ru.job4j.chat_rest_api.domian.Message;
 import ru.job4j.chat_rest_api.domian.Person;
 import ru.job4j.chat_rest_api.domian.Role;
 import ru.job4j.chat_rest_api.domian.Room;
-import ru.job4j.chat_rest_api.repository.MessageRepository;
-import ru.job4j.chat_rest_api.repository.PersonRepository;
-import ru.job4j.chat_rest_api.repository.RoomRepository;
+import ru.job4j.chat_rest_api.service.message.MessageService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -36,11 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MessageControllerTest {
 
     @MockBean
-    private MessageRepository messageRepository;
-    @MockBean
-    private RoomRepository roomRepository;
-    @MockBean
-    private PersonRepository personRepository;
+    private MessageService service;
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,7 +49,7 @@ class MessageControllerTest {
         message.setRoom(room);
         message.setAuthor(author);
 
-        when(messageRepository.findByRoomId(anyInt())).thenReturn(List.of(message));
+        when(service.findMessagesByRoomId(anyInt())).thenReturn(List.of(message));
 
         MvcResult mvcResult = this.mockMvc.perform(get("/room/0/message/"))
                 .andDo(print())
@@ -94,7 +87,7 @@ class MessageControllerTest {
         message.setRoom(room);
         message.setAuthor(author);
 
-        when(messageRepository.findByPersonId(anyInt())).thenReturn(List.of(message));
+        when(service.findMessagesByPersonId(anyInt())).thenReturn(List.of(message));
 
         MvcResult mvcResult = this.mockMvc.perform(get("/person/0/message/"))
                 .andDo(print())
@@ -134,9 +127,9 @@ class MessageControllerTest {
         message.setAuthor(author);
         message.setRoom(room);
 
-        when(roomRepository.findById(anyInt())).thenReturn(Optional.of(room));
-        when(personRepository.findById(anyInt())).thenReturn(Optional.of(author));
-        when(messageRepository.save(any())).thenReturn(message);
+        when(service.findRoomById(anyInt())).thenReturn(room);
+        when(service.findPersonById(anyInt())).thenReturn(author);
+        when(service.saveMessage(any())).thenReturn(message);
 
         String data = "{\"text\":\"text\"}";
         MvcResult mvcResult = this.mockMvc.perform(post("/room/1/person/1/message/")
@@ -174,8 +167,8 @@ class MessageControllerTest {
         Message updated = Message.of("text");
         updated.setId(1);
 
-        when(messageRepository.findById(anyInt())).thenReturn(Optional.of(message));
-        when(messageRepository.save(any())).thenReturn(updated);
+        when(service.findMessageById(anyInt())).thenReturn(message);
+        when(service.saveMessage(any())).thenReturn(updated);
 
         String data = "{\"text\":\"text\"}";
         this.mockMvc.perform(put("/message/")

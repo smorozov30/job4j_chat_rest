@@ -6,48 +6,37 @@ import org.springframework.web.bind.annotation.*;
 import ru.job4j.chat_rest_api.domian.Message;
 import ru.job4j.chat_rest_api.domian.Person;
 import ru.job4j.chat_rest_api.domian.Room;
-import ru.job4j.chat_rest_api.repository.MessageRepository;
-import ru.job4j.chat_rest_api.repository.PersonRepository;
-import ru.job4j.chat_rest_api.repository.RoomRepository;
+import ru.job4j.chat_rest_api.service.message.MessageService;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/")
 public class MessageController {
 
-    private final RoomRepository roomRepository;
-    private final PersonRepository personRepository;
-    private final MessageRepository messageRepository;
+    private final MessageService service;
 
-    public MessageController(RoomRepository roomRepository, PersonRepository personRepository, MessageRepository messageRepository) {
-        this.roomRepository = roomRepository;
-        this.personRepository = personRepository;
-        this.messageRepository = messageRepository;
+    public MessageController(MessageService service) {
+        this.service = service;
     }
 
     @GetMapping("room/{roomId}/message/")
     public List<Message> findByRoomId(@PathVariable int roomId) {
-        return StreamSupport.stream(
-                messageRepository.findByRoomId(roomId).spliterator(), false
-        ).collect(Collectors.toList());
+        return new ArrayList<>(service.findMessagesByRoomId(roomId));
     }
 
     @GetMapping("person/{personId}/message/")
     public List<Message> findByPersonId(@PathVariable int personId) {
-        return StreamSupport.stream(
-                messageRepository.findByPersonId(personId).spliterator(), false
-        ).collect(Collectors.toList());
+        return new ArrayList<>(service.findMessagesByPersonId(personId));
     }
 
     @GetMapping("message/{id}")
     public ResponseEntity<Message> findById(@PathVariable int id) {
-        var person = messageRepository.findById(id);
+        var message = service.findMessageById(id);
         return new ResponseEntity<Message>(
-                person.orElse(new Message()),
-                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
+                message,
+                message.getId() != 0 ? HttpStatus.OK : HttpStatus.NOT_FOUND
         );
     }
 
@@ -55,27 +44,27 @@ public class MessageController {
     public ResponseEntity<Message> create(@PathVariable int roomId,
                                           @PathVariable int personId,
                                           @RequestBody Message message) {
-        Room room = roomRepository.findById(roomId).orElse(new Room());
-        Person person = personRepository.findById(personId).orElse(new Person());
+        Room room = service.findRoomById(roomId);
+        Person person = service.findPersonById(personId);
         if (room.getId() == 0 || person.getId() == 0) {
             return ResponseEntity.notFound().build();
         }
         message.setRoom(room);
         message.setAuthor(person);
         return new ResponseEntity<Message>(
-                messageRepository.save(message),
+                service.saveMessage(message),
                 HttpStatus.CREATED
         );
     }
 
     @PutMapping("message/")
     public ResponseEntity<Void> update(@RequestBody Message message) {
-        Message temp = messageRepository.findById(message.getId()).orElse(new Message());
+        Message temp = service.findMessageById(message.getId());
         if (temp.getId() == 0) {
             return ResponseEntity.notFound().build();
         }
         temp.setText(message.getText());
-        messageRepository.save(temp);
+        service.saveMessage(temp);
         return ResponseEntity.ok().build();
     }
 
@@ -83,7 +72,7 @@ public class MessageController {
     public ResponseEntity<Void> delete(@PathVariable int id) {
         Message message = new Message();
         message.setId(id);
-        messageRepository.delete(message);
+        service.deleteMessage(message);
         return ResponseEntity.ok().build();
     }
 }

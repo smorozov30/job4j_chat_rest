@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.chat_rest_api.domian.Person;
-import ru.job4j.chat_rest_api.repository.PersonRepository;
+import ru.job4j.chat_rest_api.service.person.PersonService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,39 +14,39 @@ import java.util.stream.StreamSupport;
 @RequestMapping("/person")
 public class PersonController {
 
-    private final PersonRepository repository;
+    private final PersonService service;
 
-    public PersonController(PersonRepository repository) {
-        this.repository = repository;
+    public PersonController(PersonService service) {
+        this.service = service;
     }
 
     @GetMapping("/")
     public List<Person> findAll() {
         return StreamSupport.stream(
-                repository.findAll().spliterator(), false
+                service.findAllPersons().spliterator(), false
         ).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Person> findById(@PathVariable int id) {
-        var person = this.repository.findById(id);
+        var person = this.service.findPersonById(id);
         return new ResponseEntity<Person>(
-                person.orElse(new Person()),
-                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
+                person,
+                person.getId() != 0 ? HttpStatus.OK : HttpStatus.NOT_FOUND
         );
     }
 
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
         return new ResponseEntity<Person>(
-                repository.save(person),
+                service.savePerson(person),
                 HttpStatus.CREATED
         );
     }
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {
-        repository.save(person);
+        service.savePerson(person);
         return ResponseEntity.ok().build();
     }
 
@@ -54,7 +54,7 @@ public class PersonController {
     public ResponseEntity<Void> delete(@PathVariable int id) {
         Person person = new Person();
         person.setId(id);
-        repository.delete(person);
+        service.deletePerson(person);
         return ResponseEntity.ok().build();
     }
 }
